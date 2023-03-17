@@ -1,80 +1,34 @@
-import { createContext, ReactNode, useContext, useState } from 'react';
-import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import FirebaseClient from '@/models/firebase_client';
+import { createContext, ReactNode, useContext } from 'react';
+import useFirebaseAuth from '@/hooks/use_firebase_auth';
+import { AuthUserProps } from '@/models/types/auth_user';
 
-interface AuthContextProps {
-  authUser: AuthUserProps;
+export interface AuthContextProps {
+  authUser: AuthUserProps | null;
   signInWithGoogle: () => void;
   signOutWithGoogle: () => void;
   loading: boolean;
 }
 
-interface AuthUserProps {
-  uid?: string;
-  email?: string | null;
-  displayName?: string | null;
-  photoURL?: string | null;
-}
-
 const AuthUserContext = createContext<AuthContextProps | null>(null);
-const provider = new GoogleAuthProvider();
 
 export default function AuthContextProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const [user, setUser] = useState<AuthUserProps | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const signInWithGoogle = async () => {
-    try {
-      setLoading(true);
-      const result = await signInWithPopup(
-        FirebaseClient.getInstance().Auth,
-        provider
-      );
-      setUser(result.user);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signOutWithGoogle = async () => {
-    try {
-      await signOut(FirebaseClient.getInstance().Auth);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setUser(null);
-      setLoading(false);
-    }
-  };
+  const authState = useFirebaseAuth();
 
   return (
-    <AuthUserContext.Provider
-      value={{
-        authUser: {
-          uid: user?.uid,
-          email: user?.email,
-          displayName: user?.email,
-          photoURL: user?.photoURL,
-        },
-        signInWithGoogle,
-        signOutWithGoogle,
-        loading,
-      }}
-    >
+    <AuthUserContext.Provider value={authState}>
       {children}
     </AuthUserContext.Provider>
   );
 }
 
-// null checking을 위한 custom hooks
 export const useAuth = () => {
   const authState = useContext(AuthUserContext);
-  if (!authState) throw new Error('AuthState가 없습니다.');
+  if (!authState) {
+    console.error('Auth Provider 외부에서 AuthState에 접근하고 있습니다!');
+  }
   return authState;
 };

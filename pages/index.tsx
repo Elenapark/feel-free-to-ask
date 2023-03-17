@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/auth_user.context';
 
 export default function Home() {
   const { authUser, signInWithGoogle, signOutWithGoogle } = useAuth();
-  console.log(authUser);
+
   return (
     <>
       <Layout>
@@ -25,7 +25,7 @@ export default function Home() {
             </Heading>
             <Center w="300px" my="20px">
               <CustomButton
-                title="Login with Google"
+                title={authUser ? 'Logout' : 'Login With Google'}
                 size="md"
                 bgColor="#4285f4"
                 color="#fff"
@@ -38,25 +38,7 @@ export default function Home() {
                     height={15}
                   />
                 }
-                onClick={signInWithGoogle}
-              />
-            </Center>
-            <Center w="300px" my="20px">
-              <CustomButton
-                title="Logout"
-                size="md"
-                bgColor="#4285f4"
-                color="#fff"
-                colorScheme="blue"
-                leftIcon={
-                  <Image
-                    src="/google.svg"
-                    alt="google logo"
-                    width={15}
-                    height={15}
-                  />
-                }
-                onClick={signOutWithGoogle}
+                onClick={authUser ? signOutWithGoogle : signInWithGoogle}
               />
             </Center>
           </Flex>
