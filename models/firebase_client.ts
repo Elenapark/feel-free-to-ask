@@ -25,6 +25,7 @@ export default class FirebaseClient {
 
   public constructor() {
     const apps = getApps();
+
     if (apps.length === 0) {
       // app이 한번도 initialized되지 않은 경우에 firebase init
       console.info('firebase client init start');
