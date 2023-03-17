@@ -1,5 +1,4 @@
-import { Box, Button } from '@chakra-ui/react';
-import { ButtonHTMLAttributes } from 'react';
+import { Button } from '@chakra-ui/react';
 
 interface ButtonProps {
   title: string;
@@ -13,10 +12,8 @@ export default function CustomButton({
   ...props
 }: ButtonProps) {
   return (
-    <Box w="full">
-      <Button w="full" {...props} onClick={onClick}>
-        {title}
-      </Button>
-    </Box>
+    <Button {...props} onClick={onClick}>
+      {title}
+    </Button>
   );
 }

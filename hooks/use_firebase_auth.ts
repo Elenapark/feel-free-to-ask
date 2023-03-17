@@ -17,7 +17,6 @@ export default function useFirebaseAuth(): AuthContextProps {
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      setLoading(true);
       const result = await signInWithPopup(
         FirebaseClient.getInstance().Auth,
         provider
@@ -27,8 +26,6 @@ export default function useFirebaseAuth(): AuthContextProps {
       }
     } catch (err) {
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -53,12 +50,14 @@ export default function useFirebaseAuth(): AuthContextProps {
     }
 
     // 유저가 로그인 상태인 경우
+    setLoading(true);
     setAuthUser({
       uid: authState.uid,
       email: authState.email,
       displayName: authState.displayName,
       photoURL: authState.photoURL,
     });
+    setLoading(false);
   };
 
   useEffect(() => {

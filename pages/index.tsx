@@ -1,32 +1,33 @@
-import Layout from '@/components/Layout';
+import { Layout } from '@/components/Layout';
 import Image from 'next/image';
 import { Box, Heading, Flex, Center } from '@chakra-ui/react';
 import CustomButton from '@/components/ui/CustomButton';
 import { useAuth } from '@/contexts/auth_user.context';
 
 export default function Home() {
-  const { authUser, signInWithGoogle, signOutWithGoogle } = useAuth();
+  const { authUser, signInWithGoogle } = useAuth();
 
   return (
-    <>
-      <Layout>
-        <Box maxW="lg" m="40px auto">
-          <Flex justify="center" direction="column" align="center">
-            <Image
-              src="/main_logo.png"
-              alt="main logo"
-              width={300}
-              height={300}
-              style={{ objectFit: 'cover', textAlign: 'center' }}
-            />
+    <Layout minH="100vh">
+      <Box maxW="lg" m="40px auto">
+        <Flex justify="center" direction="column" align="center">
+          <Image
+            src="/main_logo.png"
+            alt="main logo"
+            width={300}
+            height={300}
+            style={{ objectFit: 'cover', textAlign: 'center' }}
+          />
 
-            <Heading as="h2" size="md" my={2}>
-              Write down your favorite sentences
-            </Heading>
+          <Heading as="h2" size="md" my={2}>
+            Write down your favorite sentences
+          </Heading>
+          {!authUser && (
             <Center w="300px" my="20px">
               <CustomButton
-                title={authUser ? 'Logout' : 'Login With Google'}
+                title="Login With Google"
                 size="md"
+                w="full"
                 bgColor="#4285f4"
                 color="#fff"
                 colorScheme="blue"
@@ -38,12 +39,12 @@ export default function Home() {
                     height={15}
                   />
                 }
-                onClick={authUser ? signOutWithGoogle : signInWithGoogle}
+                onClick={signInWithGoogle}
               />
             </Center>
-          </Flex>
-        </Box>
-      </Layout>
-    </>
+          )}
+        </Flex>
+      </Box>
+    </Layout>
   );
 }
