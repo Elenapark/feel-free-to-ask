@@ -22,7 +22,27 @@ export default function useFirebaseAuth(): AuthContextProps {
         provider
       );
       if (result.user) {
-        console.info(result.user);
+        // Firestore에 사용자 정보 저장 with api call
+        const data = {
+          uid: result.user.uid,
+          email: result.user.email,
+          displayName: result.user.displayName,
+          photoURL: result.user.photoURL,
+        };
+        const res = await fetch(
+          '/api/members',
+
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          }
+        );
+
+        const json = await res.json();
+        console.log(json);
       }
     } catch (err) {
       console.error(err);
