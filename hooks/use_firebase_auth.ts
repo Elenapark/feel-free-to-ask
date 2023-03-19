@@ -30,7 +30,7 @@ export default function useFirebaseAuth(): AuthContextProps {
           photoURL: result.user.photoURL,
         };
         const res = await fetch(
-          '/api/members',
+          '/api/members-add',
 
           {
             method: 'POST',

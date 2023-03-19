@@ -1,3 +1,7 @@
+/**
+ * Firebase collection에 실제로 접근하는 부분 담당
+ */
+
 import { AuthUserProps } from '@/models/types/auth_user';
 import FirebaseAdmin from '../firebase_admin';
 

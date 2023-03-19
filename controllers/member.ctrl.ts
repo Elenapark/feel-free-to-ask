@@ -1,5 +1,8 @@
+/**
+ * request value체크 및 model사용
+ */
+
 import type { NextApiRequest, NextApiResponse } from 'next';
-import FirebaseAdmin from '@/models/firebase_admin';
 import { AuthUserProps } from '@/models/types/auth_user';
 import MemberModel from '@/models/member/member.model';
 
@@ -9,10 +12,7 @@ type Data = {
   userInfo?: AuthUserProps;
 };
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) {
+async function add(req: NextApiRequest, res: NextApiResponse<Data>) {
   const {
     body: { uid, email, displayName, photoURL },
   } = req;
@@ -42,3 +42,9 @@ export default async function handler(
   }
   return res.status(500).json(addResult);
 }
+
+const MemberController = {
+  add,
+};
+
+export default MemberController;
