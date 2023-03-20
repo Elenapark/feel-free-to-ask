@@ -5,6 +5,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { AuthUserProps } from '@/models/types/auth_user';
 import MemberModel from '@/models/member/member.model';
+import BadRequestError from './error/bad_request_error';
 
 type Data = {
   message: string;
@@ -18,16 +19,10 @@ async function add(req: NextApiRequest, res: NextApiResponse<Data>) {
   } = req;
 
   if (uid === null || uid === undefined) {
-    return res.status(400).json({
-      message: 'uid가 누락되었습니다.',
-      result: false,
-    });
+    throw new BadRequestError('uid가 누락되었습니다.');
   }
   if (email === null || email === undefined) {
-    return res.status(400).json({
-      message: 'email이 누락되었습니다.',
-      result: false,
-    });
+    throw new BadRequestError('email이 누락되었습니다.');
   }
 
   const addResult = await MemberModel.add({

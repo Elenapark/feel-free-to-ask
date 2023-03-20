@@ -1,6 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { AuthUserProps } from '@/models/types/auth_user';
 import MemberController from '@/controllers/member.ctrl';
+import handleError from '@/controllers/error/handle_error';
+import checkSupportedMethod from '@/controllers/error/check_supported_method';
 
 type Data = {
   message: string;
@@ -16,13 +18,11 @@ export default async function handler(
   const supportedMethod = ['POST'];
 
   try {
-    // POST METHOD여부 체크
-    if (!supportedMethod.includes(method!)) {
-      // throws an error
-    }
+    // POST METHOD 여부 체크
+    checkSupportedMethod(supportedMethod, method!);
     await MemberController.add(req, res);
   } catch (err) {
-    console.error(err);
-    // throws an error
+    console.error('캐치된 에러:', err);
+    handleError(err, res);
   }
 }
