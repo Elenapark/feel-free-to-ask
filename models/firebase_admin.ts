@@ -12,6 +12,7 @@ interface Config {
 
 export default class FirebaseAdmin {
   public static instance: FirebaseAdmin;
+  private constructor() {}
 
   private init = false; // 초기화 여부
 
@@ -22,6 +23,7 @@ export default class FirebaseAdmin {
     ) {
       // 초기화 진행
       FirebaseAdmin.instance = new FirebaseAdmin();
+
       // 환경 초기화
       FirebaseAdmin.instance.bootstrap();
     }
