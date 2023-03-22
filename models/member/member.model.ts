@@ -81,8 +81,24 @@ async function add({
   }
 }
 
+async function getInfoByScreenName(
+  screenName: string
+): Promise<AuthUserProps> | null {
+  const memberRef = FirebaseAdmin.getInstance()
+    .Firestore.collection(SCREEN_NAME_COLLECTION)
+    .doc(screenName);
+
+  const memberDoc = await memberRef.get();
+  if (!memberDoc.exists) {
+    return null;
+  }
+
+  return memberDoc.data() as AuthUserProps;
+}
+
 const MemberModel = {
   add,
+  getInfoByScreenName,
 };
 
 export default MemberModel;

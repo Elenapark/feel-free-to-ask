@@ -38,8 +38,32 @@ async function add(req: NextApiRequest, res: NextApiResponse<Data>) {
   return res.status(500).json(addResult);
 }
 
+async function getInfoByScreenName(req: NextApiRequest, res: NextApiResponse) {
+  const {
+    query: { screenName },
+  } = req;
+
+  if (!screenName) {
+    throw new BadRequestError('displayName이 누락되었습니다.');
+  }
+
+  const screenNameParam = Array.isArray(screenName)
+    ? screenName[0]
+    : screenName;
+
+  const memberInfoResult = await MemberModel.getInfoByScreenName(
+    screenNameParam
+  );
+
+  if (!memberInfoResult) {
+    return res.status(404).end();
+  }
+  return res.status(200).json(memberInfoResult);
+}
+
 const MemberController = {
   add,
+  getInfoByScreenName,
 };
 
 export default MemberController;
