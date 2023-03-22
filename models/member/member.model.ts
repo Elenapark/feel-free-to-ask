@@ -20,14 +20,14 @@ async function add({
 }: AuthUserProps): Promise<AddReturnProps> {
   try {
     const screenName = (email as string).split('@')[0];
-    const result = await FirebaseAdmin.getInstance().Firebase.runTransaction(
+    const result = await FirebaseAdmin.getInstance().Firestore.runTransaction(
       async (transaction) => {
         const memberRef = FirebaseAdmin.getInstance()
-          .Firebase.collection(MEMBER_COLLECTION)
+          .Firestore.collection(MEMBER_COLLECTION)
           .doc(uid);
 
         const screenNameRef = FirebaseAdmin.getInstance()
-          .Firebase.collection(SCREEN_NAME_COLLECTION)
+          .Firestore.collection(SCREEN_NAME_COLLECTION)
           .doc(screenName);
 
         const memberData = await transaction.get(memberRef);
