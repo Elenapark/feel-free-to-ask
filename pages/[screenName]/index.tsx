@@ -3,7 +3,6 @@ import { Layout } from '@/components/Layout';
 import CustomButton from '@/components/ui/CustomButton';
 import { AuthUserProps } from '@/models/types/auth_user';
 import { Avatar, Box, Flex, Text, Textarea, useToast } from '@chakra-ui/react';
-import { useRouter } from 'next/router';
 import ResizeTextArea from 'react-textarea-autosize';
 import { useAuth } from '@/contexts/auth_user.context';
 import CustomSwitch from '@/components/ui/CustomSwitch';
