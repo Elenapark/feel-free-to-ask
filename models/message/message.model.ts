@@ -6,7 +6,7 @@ import { AuthUserProps } from '../types/auth_user';
 const MEMBER_COLLECTION = 'members';
 const MESSAGE_COLLECTION = 'messages';
 
-interface AddMessageProps {
+export interface AddMessageProps {
   uid: string;
   message: string;
   author?: Pick<AuthUserProps, 'displayName' | 'photoURL'>;
