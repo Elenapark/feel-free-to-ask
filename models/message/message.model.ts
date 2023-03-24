@@ -1,4 +1,5 @@
 import BadRequestError from '@/controllers/error/bad_request_error';
+import CustomServerError from '@/controllers/error/custom_server_error';
 import FirebaseAdmin from '@/models/firebase_admin';
 import { firestore } from 'firebase-admin';
 import { AuthUserProps } from '../types/auth_user';
@@ -12,9 +13,17 @@ export interface AddMessageProps {
   author?: Pick<AuthUserProps, 'displayName' | 'photoURL'>;
 }
 
-type NewMessageProps = Omit<AddMessageProps, 'uid'> & {
-  createdAt: firestore.FieldValue;
+export type NewMessageProps = Omit<AddMessageProps, 'uid'> & {
+  createdAt: firestore.Timestamp;
 };
+
+export interface MessageListProps {
+  id: string;
+  createdAt: string;
+  repliedAt: string | undefined;
+  message: string;
+  author?: Pick<AuthUserProps, 'displayName' | 'photoURL'> | undefined;
+}
 
 const FirestoreInstance = FirebaseAdmin.getInstance().Firestore;
 
@@ -49,8 +58,42 @@ async function addMessage({ uid, message, author }: AddMessageProps) {
   );
 }
 
+async function getMessages(uid: string): Promise<MessageListProps[]> {
+  // get messageRef by user id
+  const memberRef = FirestoreInstance.collection(MEMBER_COLLECTION).doc(uid);
+
+  const listData = FirestoreInstance.runTransaction(async (transaction) => {
+    const memberDoc = await transaction.get(memberRef);
+    if (!memberDoc.exists) {
+      throw new CustomServerError({
+        statusCode: 400,
+        message: '유저 정보가 없습니다.',
+      });
+    }
+
+    const messageRef = memberRef.collection(MESSAGE_COLLECTION);
+    const messageDoc = await transaction.get(messageRef);
+    return messageDoc.docs.map((item) => {
+      const docData = item.data() as NewMessageProps & {
+        repliedAt?: firestore.Timestamp;
+      };
+      return {
+        ...docData,
+        id: item.id,
+        createdAt: docData.createdAt.toDate().toISOString(),
+        repliedAt: docData.repliedAt
+          ? docData.repliedAt.toDate().toISOString()
+          : undefined,
+      };
+    });
+  });
+
+  return listData;
+}
+
 const MessageModel = {
   addMessage,
+  getMessages,
 };
 
 export default MessageModel;
