@@ -1,19 +1,15 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import { Layout } from '@/components/Layout';
-import CustomButton from '@/components/ui/CustomButton';
 import { AuthUserProps } from '@/models/types/auth_user';
-import { Avatar, Box, Flex, Text, Textarea, useToast } from '@chakra-ui/react';
+import { Box, Text, useToast } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/auth_user.context';
-import CustomSwitch from '@/components/ui/CustomSwitch';
 import { GetServerSideProps, GetServerSidePropsResult, NextPage } from 'next';
 import axios from 'axios';
-import {
-  AddMessageProps,
-  MessageListProps,
-} from '@/models/message/message.model';
+import { AddMessageProps } from '@/models/message/message.model';
 import Messages from '@/components/Messages';
 import UserProfile from '@/components/UserProfile';
 import MessageForm from '@/components/MessageForm';
+import { Message, MessageListProps } from '@/models/types/message_contents';
 interface Props {
   userInfo: AuthUserProps | null;
 }
@@ -21,7 +17,7 @@ interface Props {
 const UserHomePage: NextPage<Props> = ({ userInfo }) => {
   const [contents, setContents] = useState<string>('');
   const [isAnonymous, setIsAnonymous] = useState<boolean>(true);
-  const [messageList, setMessageList] = useState<MessageListProps[] | []>([]);
+  const [messageList, setMessageList] = useState<Message[]>([]);
 
   const authState = useAuth();
   const toast = useToast();
@@ -70,7 +66,7 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
             authState?.authUser?.photoURL ?? 'https://bit.ly/broken-link',
         };
     const res = await fetchPostRequest({
-      uid: userInfo?.uid,
+      uid: userInfo!.uid,
       message: contents,
       author,
     });
@@ -126,9 +122,9 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
     setIsAnonymous(e.currentTarget.checked);
   };
 
-  const getMessageList = async () => {
+  const getMessageList = async (uid: string) => {
     try {
-      const res = await fetch(`/api/message-list?uid=${userInfo?.uid}`);
+      const res = await fetch(`/api/message-list?uid=${uid}`);
       const data = await res.json();
       setMessageList(data);
     } catch (err) {
@@ -140,7 +136,7 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
     if (!userInfo) {
       return;
     }
-    getMessageList();
+    getMessageList(userInfo.uid);
   }, [userInfo]);
 
   if (!userInfo) return <Text fontSize="md">사용자 정보가 없습니다.</Text>;
@@ -160,7 +156,7 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
           handleRegisterContents={handleRegisterContents}
           handleSwitchChange={handleSwitchChange}
         />
-        <Messages messageList={messageList} />
+        <Messages messageList={messageList} userInfo={userInfo} />
       </Box>
     </Layout>
   );

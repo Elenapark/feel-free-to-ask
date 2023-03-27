@@ -1,8 +1,20 @@
 import { Box, Flex, List } from '@chakra-ui/react';
 import MessageItem from './MessageItem';
-import { MessageListProps } from '@/models/types/message_contents';
+import { Message } from '@/models/types/message_contents';
+import { AuthUserProps } from '@/models/types/auth_user';
+import { useAuth } from '@/contexts/auth_user.context';
 
-const Messages = ({ messageList }: { messageList: MessageListProps[] }) => {
+const Messages = ({
+  messageList,
+  userInfo,
+}: {
+  messageList: Message[];
+  userInfo: AuthUserProps;
+}) => {
+  const authState = useAuth();
+  const isOwner =
+    authState?.authUser !== null && authState?.authUser?.uid === userInfo?.uid;
+
   if (messageList.length === 0) {
     return (
       <Box my="4">
@@ -23,8 +35,15 @@ const Messages = ({ messageList }: { messageList: MessageListProps[] }) => {
   }
   return (
     <List my="4">
-      {messageList?.map((item: MessageListProps) => {
-        return <MessageItem key={item.id} isOwner={false} item={item} />;
+      {messageList?.map((item: Message) => {
+        return (
+          <MessageItem
+            key={item.id}
+            item={item}
+            userInfo={userInfo}
+            isOwner={isOwner}
+          />
+        );
       })}
     </List>
   );

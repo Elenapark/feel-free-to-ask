@@ -3,7 +3,7 @@ import CustomServerError from '@/controllers/error/custom_server_error';
 import FirebaseAdmin from '@/models/firebase_admin';
 import { firestore } from 'firebase-admin';
 import { AuthUserProps } from '../types/auth_user';
-import { MessageListProps } from '../types/message_contents';
+import { MessageFromServer, MessageListProps } from '../types/message_contents';
 
 const MEMBER_COLLECTION = 'members';
 const MESSAGE_COLLECTION = 'messages';
@@ -14,9 +14,11 @@ export interface AddMessageProps {
   author?: Pick<AuthUserProps, 'displayName' | 'photoURL'>;
 }
 
-export type NewMessageProps = Omit<AddMessageProps, 'uid'> & {
+export interface NewMessageProps {
+  message: string;
+  author?: Pick<AuthUserProps, 'displayName' | 'photoURL'>;
   createdAt: firestore.Timestamp;
-};
+}
 
 const FirestoreInstance = FirebaseAdmin.getInstance().Firestore;
 
@@ -67,9 +69,7 @@ async function getMessages(uid: string): Promise<MessageListProps[]> {
     const messageRef = memberRef.collection(MESSAGE_COLLECTION);
     const messageDoc = await transaction.get(messageRef);
     return messageDoc.docs.map((item) => {
-      const docData = item.data() as NewMessageProps & {
-        repliedAt?: firestore.Timestamp;
-      };
+      const docData = item.data() as Omit<MessageFromServer, 'id'>;
       return {
         ...docData,
         id: item.id,
