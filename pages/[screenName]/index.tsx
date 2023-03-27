@@ -9,7 +9,7 @@ import { AddMessageProps } from '@/models/message/message.model';
 import Messages from '@/components/Messages';
 import UserProfile from '@/components/UserProfile';
 import MessageForm from '@/components/MessageForm';
-import { Message, MessageListProps } from '@/models/types/message_contents';
+import { Message } from '@/models/types/message_contents';
 interface Props {
   userInfo: AuthUserProps | null;
 }
@@ -18,6 +18,7 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
   const [contents, setContents] = useState<string>('');
   const [isAnonymous, setIsAnonymous] = useState<boolean>(true);
   const [messageList, setMessageList] = useState<Message[]>([]);
+  const [listFetchTrigger, setListFetchTrigger] = useState<boolean>(false);
 
   const authState = useAuth();
   const toast = useToast();
@@ -137,7 +138,7 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
       return;
     }
     getMessageList(userInfo.uid);
-  }, [userInfo]);
+  }, [userInfo, listFetchTrigger]);
 
   if (!userInfo) return <Text fontSize="md">사용자 정보가 없습니다.</Text>;
 
@@ -156,7 +157,11 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
           handleRegisterContents={handleRegisterContents}
           handleSwitchChange={handleSwitchChange}
         />
-        <Messages messageList={messageList} userInfo={userInfo} />
+        <Messages
+          messageList={messageList}
+          userInfo={userInfo}
+          onSubmitComplete={() => setListFetchTrigger((prev) => !prev)}
+        />
       </Box>
     </Layout>
   );
@@ -165,6 +170,7 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
 export const getServerSideProps: GetServerSideProps<Props> = async ({
   query,
 }): Promise<GetServerSidePropsResult<Props>> => {
+  // 사용자가 url을 직접 입력하여 들어오는 경우
   const { screenName } = query;
 
   if (!screenName) {

@@ -7,9 +7,11 @@ import { useAuth } from '@/contexts/auth_user.context';
 const Messages = ({
   messageList,
   userInfo,
+  onSubmitComplete,
 }: {
   messageList: Message[];
   userInfo: AuthUserProps;
+  onSubmitComplete: () => void;
 }) => {
   const authState = useAuth();
   const isOwner =
@@ -42,6 +44,7 @@ const Messages = ({
             item={item}
             userInfo={userInfo}
             isOwner={isOwner}
+            onSubmitComplete={onSubmitComplete}
           />
         );
       })}

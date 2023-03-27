@@ -1,23 +1,73 @@
 import React, { useState } from 'react';
-import { Box, Flex, ListItem, Avatar, Text, Divider } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  ListItem,
+  Avatar,
+  Text,
+  Divider,
+  useToast,
+} from '@chakra-ui/react';
 import { Message } from '@/models/types/message_contents';
 import Form from './ui/Form';
 import formatAgo from '@/utils/date';
 import { AuthUserProps } from '@/models/types/auth_user';
+import axios from 'axios';
+import { ReplyProps } from '@/models/message/message.model';
 
 interface MessageItemProps {
   item: Message;
   userInfo: AuthUserProps;
   isOwner: boolean;
+  onSubmitComplete: () => void;
 }
 
 export default function MessageItem({
   item,
   isOwner,
   userInfo,
+  onSubmitComplete,
 }: MessageItemProps) {
+  const toast = useToast();
   const [newReply, setNewReply] = useState<string>('');
   const { author, createdAt, id, message, repliedAt, reply } = item;
+
+  const addReplyToMessage = async ({ uid, reply, messageId }: ReplyProps) => {
+    try {
+      const res = await axios({
+        method: 'POST',
+        url: '/api/message-add-reply',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: {
+          uid,
+          reply,
+          messageId,
+        },
+      });
+      if (res.status === 201) {
+        toast({
+          title: '등록 성공',
+          isClosable: true,
+          duration: 7000,
+          status: 'success',
+          position: 'bottom-right',
+        });
+        onSubmitComplete();
+      }
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: '등록 실패',
+        description: '이미 댓글이 등록되었거나, 에러가 발생했습니다.',
+        isClosable: true,
+        status: 'error',
+        duration: 7000,
+        position: 'bottom-right',
+      });
+    }
+  };
 
   return (
     <ListItem key={id} bgColor="white" rounded="md" p="2" my="2" boxShadow="md">
@@ -74,10 +124,16 @@ export default function MessageItem({
             <Divider my="2" />
             <Form
               buttonTitle="등록"
-              placeholder="메세지를 입력하세요."
+              placeholder="댓글을 입력하세요."
               value={newReply}
               onChange={(e) => setNewReply(e.target.value)}
-              onClick={() => console.log(newReply)}
+              onClick={() =>
+                addReplyToMessage({
+                  uid: userInfo.uid,
+                  reply: newReply,
+                  messageId: id,
+                })
+              }
               Avatar={
                 <Avatar
                   size="xs"
