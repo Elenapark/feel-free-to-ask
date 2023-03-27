@@ -38,9 +38,30 @@ async function get(req: NextApiRequest, res: NextApiResponse) {
   return res.status(200).json(messages);
 }
 
+async function reply(req: NextApiRequest, res: NextApiResponse) {
+  const {
+    body: { uid, messageId, reply },
+  } = req;
+
+  if (uid === null || uid === undefined) {
+    throw new BadRequestError('uid가 누락되었습니다.');
+  }
+
+  if (messageId === null || messageId === undefined) {
+    throw new BadRequestError('messageId가 누락되었습니다.');
+  }
+  if (reply === null || reply === undefined) {
+    throw new BadRequestError('reply가 누락되었습니다.');
+  }
+
+  await MessageModel.addReplyToMessage({ uid, messageId, reply });
+  return res.status(201).end();
+}
+
 const MessageController = {
   add,
   get,
+  reply,
 };
 
 export default MessageController;

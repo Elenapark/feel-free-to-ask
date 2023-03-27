@@ -7,6 +7,7 @@ import { MessageFromServer, MessageListProps } from '../types/message_contents';
 
 const MEMBER_COLLECTION = 'members';
 const MESSAGE_COLLECTION = 'messages';
+const REPLY_COLLECTION = 'reply';
 
 export interface AddMessageProps {
   uid: string;
@@ -18,6 +19,12 @@ export interface NewMessageProps {
   message: string;
   author?: Pick<AuthUserProps, 'displayName' | 'photoURL'>;
   createdAt: firestore.Timestamp;
+}
+
+export interface ReplyProps {
+  uid: string;
+  messageId: string;
+  reply: string;
 }
 
 const FirestoreInstance = FirebaseAdmin.getInstance().Firestore;
@@ -68,6 +75,8 @@ async function getMessages(uid: string): Promise<MessageListProps[]> {
 
     const messageRef = memberRef.collection(MESSAGE_COLLECTION);
     const messageDoc = await transaction.get(messageRef);
+
+    // extract data
     return messageDoc.docs.map((item) => {
       const docData = item.data() as Omit<MessageFromServer, 'id'>;
       return {
@@ -84,9 +93,51 @@ async function getMessages(uid: string): Promise<MessageListProps[]> {
   return listData;
 }
 
+async function addReplyToMessage({ uid, messageId, reply }: ReplyProps) {
+  const memberRef = FirestoreInstance.collection(MEMBER_COLLECTION).doc(uid);
+  const messageRef = FirestoreInstance.collection(MEMBER_COLLECTION)
+    .doc(uid)
+    .collection(MESSAGE_COLLECTION)
+    .doc(messageId);
+
+  await FirestoreInstance.runTransaction(async (transaction) => {
+    const memberDoc = await transaction.get(memberRef);
+
+    if (!memberDoc.exists) {
+      throw new CustomServerError({
+        statusCode: 400,
+        message: '유저 정보가 없습니다.',
+      });
+    }
+
+    const messageDoc = await transaction.get(messageRef);
+    if (!messageDoc.exists) {
+      throw new CustomServerError({
+        statusCode: 400,
+        message: '메세지 아이템이 존재하지 않습니다.',
+      });
+    }
+
+    // extract data
+    const messageData = messageDoc.data() as MessageFromServer;
+    if (messageData.reply) {
+      throw new CustomServerError({
+        statusCode: 400,
+        message: '이미 댓글을 입력하였습니다.',
+      });
+    }
+
+    await transaction.update(messageRef, {
+      reply,
+      repliedAt: firestore.FieldValue.serverTimestamp(),
+    });
+  });
+}
+
 const MessageModel = {
   addMessage,
   getMessages,
+  addReplyToMessage,
 };
 
 export default MessageModel;
