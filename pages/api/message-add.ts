@@ -3,12 +3,9 @@ import checkSupportedMethod from '@/controllers/error/check_supported_method';
 import MessageController from '@/controllers/message.ctrl';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-type Data = {
-  //
-};
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse
 ) {
   const { method } = req;
   const supportedMethod = ['POST'];

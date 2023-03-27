@@ -3,7 +3,7 @@ import CustomServerError from '@/controllers/error/custom_server_error';
 import FirebaseAdmin from '@/models/firebase_admin';
 import { firestore } from 'firebase-admin';
 import { AuthUserProps } from '../types/auth_user';
-import { MessageFromServer, MessageListProps } from '../types/message_contents';
+import { Message, MessageFromServer } from '../types/message_contents';
 
 const MEMBER_COLLECTION = 'members';
 const MESSAGE_COLLECTION = 'messages';
@@ -60,7 +60,7 @@ async function addMessage({ uid, message, author }: AddMessageProps) {
   );
 }
 
-async function getMessages(uid: string): Promise<MessageListProps[]> {
+async function getMessages(uid: string): Promise<Message[]> {
   // get messageRef by user id
   const memberRef = FirestoreInstance.collection(MEMBER_COLLECTION).doc(uid);
 
@@ -134,10 +134,55 @@ async function addReplyToMessage({ uid, messageId, reply }: ReplyProps) {
   });
 }
 
+async function getEachMessage({
+  uid,
+  messageId,
+}: Omit<ReplyProps, 'reply'>): Promise<Message> {
+  const memberRef = FirestoreInstance.collection(MEMBER_COLLECTION).doc(uid);
+  const messageRef = FirestoreInstance.collection(MEMBER_COLLECTION)
+    .doc(uid)
+    .collection(MESSAGE_COLLECTION)
+    .doc(messageId);
+
+  const eachData = await FirestoreInstance.runTransaction(
+    async (transaction) => {
+      const memberDoc = await transaction.get(memberRef);
+
+      if (!memberDoc.exists) {
+        throw new CustomServerError({
+          statusCode: 400,
+          message: '유저 정보가 없습니다.',
+        });
+      }
+
+      const messageDoc = await transaction.get(messageRef);
+      if (!messageDoc.exists) {
+        throw new CustomServerError({
+          statusCode: 400,
+          message: '메세지 아이템이 존재하지 않습니다.',
+        });
+      }
+
+      // extract data
+      const messageData = messageDoc.data() as MessageFromServer;
+      return {
+        ...messageData,
+        createdAt: messageData.createdAt.toDate().toISOString(),
+        repliedAt: messageData.repliedAt
+          ? messageData.repliedAt.toDate().toISOString()
+          : undefined,
+      };
+    }
+  );
+
+  return eachData;
+}
+
 const MessageModel = {
   addMessage,
   getMessages,
   addReplyToMessage,
+  getEachMessage,
 };
 
 export default MessageModel;

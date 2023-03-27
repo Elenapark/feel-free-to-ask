@@ -5,7 +5,7 @@ import { Box, Text, useToast } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/auth_user.context';
 import { GetServerSideProps, GetServerSidePropsResult, NextPage } from 'next';
 import axios from 'axios';
-import { AddMessageProps } from '@/models/message/message.model';
+import { AddMessageProps, ReplyProps } from '@/models/message/message.model';
 import Messages from '@/components/Messages';
 import UserProfile from '@/components/UserProfile';
 import MessageForm from '@/components/MessageForm';
@@ -18,7 +18,6 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
   const [contents, setContents] = useState<string>('');
   const [isAnonymous, setIsAnonymous] = useState<boolean>(true);
   const [messageList, setMessageList] = useState<Message[]>([]);
-  const [listFetchTrigger, setListFetchTrigger] = useState<boolean>(false);
 
   const authState = useAuth();
   const toast = useToast();
@@ -89,6 +88,7 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
       status: 'success',
       position: 'bottom-right',
     });
+    getMessageList(userInfo!.uid);
   };
 
   const handleContentsChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -123,6 +123,26 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
     setIsAnonymous(e.currentTarget.checked);
   };
 
+  // get single message
+  const getSingleMessage = async ({
+    uid,
+    messageId,
+  }: Omit<ReplyProps, 'reply'>) => {
+    try {
+      const res = await axios(
+        `/api/message-each?uid=${uid}&messageId=${messageId}`
+      );
+      if (res.status === 200) {
+        setMessageList((prev) =>
+          prev.map((item) => (item.id === messageId ? res.data : item))
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // get all messages list
   const getMessageList = async (uid: string) => {
     try {
       const res = await fetch(`/api/message-list?uid=${uid}`);
@@ -138,7 +158,7 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
       return;
     }
     getMessageList(userInfo.uid);
-  }, [userInfo, listFetchTrigger]);
+  }, [userInfo]);
 
   if (!userInfo) return <Text fontSize="md">사용자 정보가 없습니다.</Text>;
 
@@ -160,7 +180,7 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
         <Messages
           messageList={messageList}
           userInfo={userInfo}
-          onSubmitComplete={() => setListFetchTrigger((prev) => !prev)}
+          onSubmitComplete={getSingleMessage}
         />
       </Box>
     </Layout>

@@ -3,6 +3,7 @@ import MessageItem from './MessageItem';
 import { Message } from '@/models/types/message_contents';
 import { AuthUserProps } from '@/models/types/auth_user';
 import { useAuth } from '@/contexts/auth_user.context';
+import { ReplyProps } from '@/models/message/message.model';
 
 const Messages = ({
   messageList,
@@ -11,7 +12,10 @@ const Messages = ({
 }: {
   messageList: Message[];
   userInfo: AuthUserProps;
-  onSubmitComplete: () => void;
+  onSubmitComplete: ({
+    uid,
+    messageId,
+  }: Omit<ReplyProps, 'reply'>) => Promise<void>;
 }) => {
   const authState = useAuth();
   const isOwner =
@@ -44,7 +48,9 @@ const Messages = ({
             item={item}
             userInfo={userInfo}
             isOwner={isOwner}
-            onSubmitComplete={onSubmitComplete}
+            onSubmitComplete={() =>
+              onSubmitComplete({ uid: userInfo.uid, messageId: item.id })
+            }
           />
         );
       })}
