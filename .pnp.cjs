@@ -54,6 +54,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:18.2.0"],\
             ["react-textarea-autosize", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:8.4.1"],\
+            ["timeago.js", "npm:4.0.2"],\
             ["ts-jest", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:29.0.5"],\
             ["ts-node", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:10.9.1"],\
             ["typescript", "patch:typescript@npm%3A4.9.5#~builtin<compat/typescript>::version=4.9.5&hash=ad5954"]\
@@ -11085,6 +11086,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:18.2.0"],\
             ["react-textarea-autosize", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:8.4.1"],\
+            ["timeago.js", "npm:4.0.2"],\
             ["ts-jest", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:29.0.5"],\
             ["ts-node", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:10.9.1"],\
             ["typescript", "patch:typescript@npm%3A4.9.5#~builtin<compat/typescript>::version=4.9.5&hash=ad5954"]\
@@ -13168,6 +13170,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/text-table-npm-0.2.0-d92a778b59-b6937a38c8.zip/node_modules/text-table/",\
           "packageDependencies": [\
             ["text-table", "npm:0.2.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["timeago.js", [\
+        ["npm:4.0.2", {\
+          "packageLocation": "./.yarn/cache/timeago.js-npm-4.0.2-e87d64f9a3-c785a06988.zip/node_modules/timeago.js/",\
+          "packageDependencies": [\
+            ["timeago.js", "npm:4.0.2"]\
           ],\
           "linkType": "HARD"\
         }]\

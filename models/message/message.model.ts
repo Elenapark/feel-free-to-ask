@@ -3,6 +3,7 @@ import CustomServerError from '@/controllers/error/custom_server_error';
 import FirebaseAdmin from '@/models/firebase_admin';
 import { firestore } from 'firebase-admin';
 import { AuthUserProps } from '../types/auth_user';
+import { MessageListProps } from '../types/message_contents';
 
 const MEMBER_COLLECTION = 'members';
 const MESSAGE_COLLECTION = 'messages';
@@ -16,14 +17,6 @@ export interface AddMessageProps {
 export type NewMessageProps = Omit<AddMessageProps, 'uid'> & {
   createdAt: firestore.Timestamp;
 };
-
-export interface MessageListProps {
-  id: string;
-  createdAt: string;
-  repliedAt: string | undefined;
-  message: string;
-  author?: Pick<AuthUserProps, 'displayName' | 'photoURL'> | undefined;
-}
 
 const FirestoreInstance = FirebaseAdmin.getInstance().Firestore;
 

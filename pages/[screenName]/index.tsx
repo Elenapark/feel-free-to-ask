@@ -1,14 +1,19 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { Layout } from '@/components/Layout';
 import CustomButton from '@/components/ui/CustomButton';
 import { AuthUserProps } from '@/models/types/auth_user';
 import { Avatar, Box, Flex, Text, Textarea, useToast } from '@chakra-ui/react';
-import ResizeTextArea from 'react-textarea-autosize';
 import { useAuth } from '@/contexts/auth_user.context';
 import CustomSwitch from '@/components/ui/CustomSwitch';
 import { GetServerSideProps, GetServerSidePropsResult, NextPage } from 'next';
 import axios from 'axios';
-import { AddMessageProps } from '@/models/message/message.model';
+import {
+  AddMessageProps,
+  MessageListProps,
+} from '@/models/message/message.model';
+import Messages from '@/components/Messages';
+import UserProfile from '@/components/UserProfile';
+import MessageForm from '@/components/MessageForm';
 interface Props {
   userInfo: AuthUserProps | null;
 }
@@ -16,6 +21,7 @@ interface Props {
 const UserHomePage: NextPage<Props> = ({ userInfo }) => {
   const [contents, setContents] = useState<string>('');
   const [isAnonymous, setIsAnonymous] = useState<boolean>(true);
+  const [messageList, setMessageList] = useState<MessageListProps[] | []>([]);
 
   const authState = useAuth();
   const toast = useToast();
@@ -120,6 +126,23 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
     setIsAnonymous(e.currentTarget.checked);
   };
 
+  const getMessageList = async () => {
+    try {
+      const res = await fetch(`/api/message-list?uid=${userInfo?.uid}`);
+      const data = await res.json();
+      setMessageList(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    if (!userInfo) {
+      return;
+    }
+    getMessageList();
+  }, [userInfo]);
+
   if (!userInfo) return <Text fontSize="md">사용자 정보가 없습니다.</Text>;
 
   return (
@@ -128,70 +151,16 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
       minH="100vh"
       backgroundColor="gray.100"
     >
-      <Box maxW="md" mx="auto" pt="6" px="2">
-        <Flex align="center" bgColor="white" rounded="md" p="4">
-          <Avatar
-            src={userInfo?.photoURL ?? 'https://bit.ly/broken-link'}
-            size="lg"
-            mr="2"
-          />
-          <Box>
-            <Text fontSize="md">{userInfo?.displayName}</Text>
-            <Text fontSize="xs">@{userInfo?.email?.split('@')[0]}</Text>
-          </Box>
-        </Flex>
-        <Flex
-          flexDirection="column"
-          bgColor="white"
-          rounded="md"
-          p="2"
-          my="2"
-          gap="2"
-        >
-          <Flex justify="space-between" align="center" gap="2">
-            {isAnonymous && (
-              <Avatar size="xs" src={'https://bit.ly/broken-link'} />
-            )}
-            {!isAnonymous && (
-              <Avatar
-                size="xs"
-                src={
-                  authState?.authUser?.photoURL ?? 'https://bit.ly/broken-link'
-                }
-              />
-            )}
-            <Textarea
-              placeholder="내용을 입력하세요"
-              bg="gray.100"
-              border="none"
-              resize="none"
-              minH="unset"
-              value={contents}
-              onChange={handleContentsChange}
-              as={ResizeTextArea}
-              maxRows={7}
-            />
-            <CustomButton
-              title="등록"
-              bgColor="#ffb86c"
-              color="white"
-              colorScheme="yellow"
-              variant="solid"
-              size="sm"
-              isDisabled={contents.length === 0}
-              onClick={handleRegisterContents}
-            />
-          </Flex>
-          <CustomSwitch
-            id="anonymous"
-            size="sm"
-            mr={1}
-            colorScheme="orange"
-            isChecked={isAnonymous}
-            onChange={handleSwitchChange}
-            FormLabelText="익명으로 작성하기"
-          />
-        </Flex>
+      <Box maxW="md" mx="auto" py="6" px="2">
+        <UserProfile userInfo={userInfo} />
+        <MessageForm
+          isAnonymous={isAnonymous}
+          contents={contents}
+          handleContentsChange={handleContentsChange}
+          handleRegisterContents={handleRegisterContents}
+          handleSwitchChange={handleSwitchChange}
+        />
+        <Messages messageList={messageList} />
       </Box>
     </Layout>
   );
