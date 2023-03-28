@@ -1,7 +1,7 @@
 import { ChangeEvent, useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { AuthUserProps } from '@/models/types/auth_user';
-import { Box, Flex, Text, useToast } from '@chakra-ui/react';
+import { Box, Text, useToast } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/auth_user.context';
 import { GetServerSideProps, GetServerSidePropsResult, NextPage } from 'next';
 import axios from 'axios';
@@ -12,6 +12,7 @@ import MessageForm from '@/components/MessageForm';
 
 import { useQuery } from '@tanstack/react-query';
 import { getAllMessages } from '@/services/message-api';
+import InfoMessage from '@/components/InfoMessage';
 interface Props {
   userInfo: AuthUserProps | null;
 }
@@ -154,35 +155,13 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
           handleSwitchChange={handleSwitchChange}
         />
         {isLoading ? (
-          <Box my="4">
-            <Flex
-              bgColor="white"
-              rounded="md"
-              p="2"
-              my="2"
-              minH="200px"
-              justify="center"
-              alignItems="center"
-              fontWeight="bold"
-            >
-              로딩중입니다. 조금만 더 기다려봐요! 🤔
-            </Flex>
-          </Box>
+          <InfoMessage>
+            <Text>로딩중입니다. 조금만 더 기다려봐요! 🤔</Text>
+          </InfoMessage>
         ) : isError ? (
-          <Box my="4">
-            <Flex
-              bgColor="white"
-              rounded="md"
-              p="2"
-              my="2"
-              minH="200px"
-              justify="center"
-              alignItems="center"
-              fontWeight="bold"
-            >
-              에러가 발생했습니다.🥲
-            </Flex>
-          </Box>
+          <InfoMessage>
+            <Text>에러가 발생했습니다.🥲</Text>
+          </InfoMessage>
         ) : (
           <Messages messageList={messageList} userInfo={userInfo} />
         )}

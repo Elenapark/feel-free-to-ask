@@ -7,9 +7,17 @@ import {
   Text,
   Divider,
   useToast,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Button,
+  IconButton,
 } from '@chakra-ui/react';
 import { Message } from '@/models/types/message_contents';
 import Form from './ui/Form';
+import { BsThreeDots } from 'react-icons/bs';
+
 import formatAgo from '@/utils/date';
 import { AuthUserProps } from '@/models/types/auth_user';
 
@@ -75,21 +83,35 @@ export default function MessageItem({
 
   return (
     <ListItem key={id} bgColor="white" rounded="md" p="2" my="2" boxShadow="md">
-      <Flex align="center" gap="1">
-        <Avatar
-          src={
-            author
-              ? author?.photoURL ?? 'https://bit.ly/broken-link'
-              : 'https://bit.ly/broken-link'
-          }
-          size="xs"
-        />
-        <Text fontSize="sm" fontWeight="semibold">
-          {author?.displayName ?? 'Anonymous'}
-        </Text>
-        <Text fontSize="xx-small" color="gray.500">
-          {formatAgo(createdAt, 'ko')}
-        </Text>
+      <Flex justify="space-between" align="center" gap="1">
+        <Flex gap="1" align="center">
+          <Avatar
+            src={
+              author
+                ? author?.photoURL ?? 'https://bit.ly/broken-link'
+                : 'https://bit.ly/broken-link'
+            }
+            size="xs"
+          />
+          <Text fontSize="sm" fontWeight="semibold">
+            {author?.displayName ?? 'Anonymous'}
+          </Text>
+          <Text fontSize="xx-small" color="gray.500">
+            {formatAgo(createdAt, 'ko')}
+          </Text>
+        </Flex>
+        {isOwner && (
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              icon={<BsThreeDots />}
+              bgColor="transparent"
+            />
+            <MenuList>
+              <MenuItem>비공개 처리하기</MenuItem>
+            </MenuList>
+          </Menu>
+        )}
       </Flex>
       <Box border="1px" borderColor="gray.200" rounded="md" p="2" my="1">
         <Text whiteSpace="pre-line" fontSize="sm">
