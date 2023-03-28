@@ -11,7 +11,6 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  Button,
   IconButton,
 } from '@chakra-ui/react';
 import { Message } from '@/models/types/message_contents';
@@ -23,7 +22,12 @@ import { AuthUserProps } from '@/models/types/auth_user';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ReplyProps } from '@/models/message/message.model';
-import { addReplyToMessage, getSingleMessage } from '@/services/message-api';
+import {
+  addReplyToMessage,
+  getSingleMessage,
+  MessageProps,
+  updateMessage,
+} from '@/services/message-api';
 
 interface MessageItemProps {
   item: Message;
@@ -68,8 +72,7 @@ export default function MessageItem({
         }
       }
     },
-    onError: (err) => {
-      console.error(err);
+    onError: () => {
       toast({
         title: '등록 실패',
         description: '이미 댓글이 등록되었거나, 에러가 발생했습니다.',
@@ -80,6 +83,37 @@ export default function MessageItem({
       });
     },
   });
+
+  const { mutate: updateMessageMutate } = useMutation({
+    mutationFn: ({
+      uid,
+      messageId,
+      isDenied,
+    }: MessageProps & { isDenied: boolean }) =>
+      updateMessage({ uid, messageId, isDenied }),
+    onSuccess: () => {
+      toast({
+        title: '메세지 상태가 변경되었습니다.',
+        isClosable: true,
+        status: 'success',
+        duration: 3000,
+        position: 'bottom-right',
+      });
+      queryClient.invalidateQueries(['MessageList', userInfo?.uid]);
+    },
+    onError: () => {
+      toast({
+        title: '메세지 상태 변경에 실패했습니다.',
+        isClosable: true,
+        status: 'error',
+        duration: 3000,
+        position: 'bottom-right',
+      });
+    },
+  });
+
+  const isDeniedTitle =
+    item.isDenied !== undefined ? item.isDenied === true : false;
 
   return (
     <ListItem key={id} bgColor="white" rounded="md" p="2" my="2" boxShadow="md">
@@ -108,7 +142,18 @@ export default function MessageItem({
               bgColor="transparent"
             />
             <MenuList>
-              <MenuItem>비공개 처리하기</MenuItem>
+              <MenuItem
+                onClick={() =>
+                  updateMessageMutate({
+                    uid: userInfo.uid,
+                    messageId: item.id,
+                    isDenied:
+                      item.isDenied !== undefined ? !item.isDenied : true,
+                  })
+                }
+              >
+                {isDeniedTitle ? '비공개 처리 해제' : '비공개 처리'}
+              </MenuItem>
             </MenuList>
           </Menu>
         )}

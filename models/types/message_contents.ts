@@ -7,6 +7,7 @@ export interface MessageListProps {
     displayName: string | null;
     photoURL?: string | null;
   };
+  isDenied?: boolean;
 }
 
 export interface Message extends MessageListProps {

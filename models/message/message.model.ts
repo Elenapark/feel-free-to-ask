@@ -80,8 +80,11 @@ async function getMessages(uid: string): Promise<Message[]> {
     // extract data
     return messageDoc.docs.map((item) => {
       const docData = item.data() as Omit<MessageFromServer, 'id'>;
+      const isDenied =
+        docData.isDenied !== undefined && docData.isDenied === true;
       return {
         ...docData,
+        message: isDenied ? '비공개 처리된 메세지입니다.' : docData.message,
         id: item.id,
         createdAt: docData.createdAt.toDate().toISOString(),
         repliedAt: docData.repliedAt
@@ -166,8 +169,12 @@ async function getEachMessage({
 
       // extract data
       const messageData = messageDoc.data() as MessageFromServer;
+      const isDenied =
+        messageData.isDenied !== undefined && messageData.isDenied === true;
+
       return {
         ...messageData,
+        message: isDenied ? '비공개 처리된 메세지입니다.' : messageData.message,
         createdAt: messageData.createdAt.toDate().toISOString(),
         repliedAt: messageData.repliedAt
           ? messageData.repliedAt.toDate().toISOString()
@@ -214,7 +221,7 @@ async function updateMessage({
       }
 
       // update
-      await transaction.set(messageRef, { isDenied });
+      await transaction.update(messageRef, { isDenied });
 
       // returns value
       const messageData = messageDoc.data() as MessageFromServer;
