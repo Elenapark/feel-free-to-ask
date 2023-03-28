@@ -179,11 +179,65 @@ async function getEachMessage({
   return eachData;
 }
 
+async function updateMessage({
+  uid,
+  messageId,
+  isDenied,
+}: {
+  uid: string;
+  messageId: string;
+  isDenied: boolean;
+}) {
+  const memberRef = FirestoreInstance.collection(MEMBER_COLLECTION).doc(uid);
+  const messageRef = FirestoreInstance.collection(MEMBER_COLLECTION)
+    .doc(uid)
+    .collection(MESSAGE_COLLECTION)
+    .doc(messageId);
+
+  const updated = await FirestoreInstance.runTransaction(
+    async (transaction) => {
+      const memberDoc = await transaction.get(memberRef);
+      const messageDoc = await transaction.get(messageRef);
+
+      if (!memberDoc.exists) {
+        throw new CustomServerError({
+          statusCode: 400,
+          message: '유저 정보가 없습니다.',
+        });
+      }
+
+      if (!messageDoc.exists) {
+        throw new CustomServerError({
+          statusCode: 400,
+          message: '메세지 아이템이 존재하지 않습니다.',
+        });
+      }
+
+      // update
+      await transaction.set(messageRef, { isDenied });
+
+      // returns value
+      const messageData = messageDoc.data() as MessageFromServer;
+      return {
+        ...messageData,
+        createdAt: messageData.createdAt.toDate().toISOString(),
+        repliedAt: messageData.repliedAt
+          ? messageData.repliedAt.toDate().toISOString()
+          : undefined,
+        isDenied,
+      };
+    }
+  );
+
+  return updated;
+}
+
 const MessageModel = {
   addMessage,
   getMessages,
   addReplyToMessage,
   getEachMessage,
+  updateMessage,
 };
 
 export default MessageModel;

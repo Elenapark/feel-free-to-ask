@@ -1,6 +1,8 @@
+import CustomServerError from './error/custom_server_error';
 import BadRequestError from './error/bad_request_error';
 import { NextApiRequest, NextApiResponse } from 'next';
 import MessageModel from '@/models/message/message.model';
+import FirebaseAdmin from '@/models/firebase_admin';
 
 async function add(req: NextApiRequest, res: NextApiResponse) {
   const {
@@ -81,11 +83,62 @@ async function getEachMessage(req: NextApiRequest, res: NextApiResponse) {
   return res.status(200).json(eachMessage);
 }
 
+async function update(req: NextApiRequest, res: NextApiResponse) {
+  const {
+    body: { uid, messageId, isDenied },
+  } = req;
+
+  const token = req.headers.authorization;
+
+  if (!token) {
+    throw new CustomServerError({
+      statusCode: 401,
+      message: '권한이 없는 사용자입니다.',
+    });
+  }
+
+  let tokenUid: null | string = null;
+
+  try {
+    const decoded = await FirebaseAdmin.getInstance().Auth.verifyIdToken(token);
+    tokenUid = decoded.uid;
+  } catch (err) {
+    throw new BadRequestError('token에 문제가 있습니다.');
+  }
+
+  if (uid === null || uid === undefined) {
+    throw new BadRequestError('uid가 누락되었습니다.');
+  }
+
+  if (uid !== tokenUid) {
+    throw new CustomServerError({
+      statusCode: 401,
+      message: '권한이 없는 사용자입니다.',
+    });
+  }
+
+  if (messageId === null || messageId === undefined) {
+    throw new BadRequestError('messageId가 누락되었습니다.');
+  }
+  if (isDenied === null || isDenied === undefined) {
+    throw new BadRequestError('isDenied가 누락되었습니다.');
+  }
+
+  const updatedResult = await MessageModel.updateMessage({
+    uid,
+    messageId,
+    isDenied,
+  });
+
+  return res.status(200).json(updatedResult);
+}
+
 const MessageController = {
   add,
   get,
   reply,
   getEachMessage,
+  update,
 };
 
 export default MessageController;
