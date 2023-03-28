@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Box,
   Flex,
@@ -12,40 +12,31 @@ import { Message } from '@/models/types/message_contents';
 import Form from './ui/Form';
 import formatAgo from '@/utils/date';
 import { AuthUserProps } from '@/models/types/auth_user';
-import axios from 'axios';
+
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ReplyProps } from '@/models/message/message.model';
+import { addReplyToMessage, getSingleMessage } from '@/services/message-api';
 
 interface MessageItemProps {
   item: Message;
   userInfo: AuthUserProps;
   isOwner: boolean;
-  onSubmitComplete: () => void;
 }
 
 export default function MessageItem({
   item,
   isOwner,
   userInfo,
-  onSubmitComplete,
 }: MessageItemProps) {
   const toast = useToast();
   const [newReply, setNewReply] = useState<string>('');
   const { author, createdAt, id, message, repliedAt, reply } = item;
+  const queryClient = useQueryClient();
 
-  const addReplyToMessage = async ({ uid, reply, messageId }: ReplyProps) => {
-    try {
-      const res = await axios({
-        method: 'POST',
-        url: '/api/message-add-reply',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        data: {
-          uid,
-          reply,
-          messageId,
-        },
-      });
+  const { mutate: addReplyMutate } = useMutation({
+    mutationFn: ({ uid, reply, messageId }: ReplyProps) =>
+      addReplyToMessage({ uid, reply, messageId }),
+    onSuccess: async (res, variables) => {
       if (res.status === 201) {
         toast({
           title: '등록 성공',
@@ -54,9 +45,22 @@ export default function MessageItem({
           status: 'success',
           position: 'bottom-right',
         });
-        onSubmitComplete();
+
+        const singleMessage = await getSingleMessage({
+          uid: userInfo.uid,
+          messageId: item.id,
+        });
+        if (singleMessage.data) {
+          console.log(singleMessage.data);
+          queryClient.setQueryData(
+            ['MessageList', userInfo?.uid, { id: variables.messageId }],
+            singleMessage.data
+          );
+          queryClient.invalidateQueries(['MessageList', userInfo?.uid]);
+        }
       }
-    } catch (err) {
+    },
+    onError: (err) => {
       console.error(err);
       toast({
         title: '등록 실패',
@@ -66,8 +70,8 @@ export default function MessageItem({
         duration: 7000,
         position: 'bottom-right',
       });
-    }
-  };
+    },
+  });
 
   return (
     <ListItem key={id} bgColor="white" rounded="md" p="2" my="2" boxShadow="md">
@@ -128,7 +132,7 @@ export default function MessageItem({
               value={newReply}
               onChange={(e) => setNewReply(e.target.value)}
               onClick={() =>
-                addReplyToMessage({
+                addReplyMutate({
                   uid: userInfo.uid,
                   reply: newReply,
                   messageId: id,

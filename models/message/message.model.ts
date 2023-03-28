@@ -7,7 +7,6 @@ import { Message, MessageFromServer } from '../types/message_contents';
 
 const MEMBER_COLLECTION = 'members';
 const MESSAGE_COLLECTION = 'messages';
-const REPLY_COLLECTION = 'reply';
 
 export interface AddMessageProps {
   uid: string;
@@ -73,7 +72,9 @@ async function getMessages(uid: string): Promise<Message[]> {
       });
     }
 
-    const messageRef = memberRef.collection(MESSAGE_COLLECTION);
+    const messageRef = memberRef
+      .collection(MESSAGE_COLLECTION)
+      .orderBy('createdAt', 'desc');
     const messageDoc = await transaction.get(messageRef);
 
     // extract data

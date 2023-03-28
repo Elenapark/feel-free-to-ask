@@ -1,15 +1,17 @@
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { AuthUserProps } from '@/models/types/auth_user';
-import { Box, Text, useToast } from '@chakra-ui/react';
+import { Box, Flex, Text, useToast } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/auth_user.context';
 import { GetServerSideProps, GetServerSidePropsResult, NextPage } from 'next';
 import axios from 'axios';
-import { AddMessageProps, ReplyProps } from '@/models/message/message.model';
+import { AddMessageProps } from '@/models/message/message.model';
 import Messages from '@/components/Messages';
 import UserProfile from '@/components/UserProfile';
 import MessageForm from '@/components/MessageForm';
-import { Message } from '@/models/types/message_contents';
+
+import { useQuery } from '@tanstack/react-query';
+import { getAllMessages } from '@/services/message-api';
 interface Props {
   userInfo: AuthUserProps | null;
 }
@@ -17,7 +19,6 @@ interface Props {
 const UserHomePage: NextPage<Props> = ({ userInfo }) => {
   const [contents, setContents] = useState<string>('');
   const [isAnonymous, setIsAnonymous] = useState<boolean>(true);
-  const [messageList, setMessageList] = useState<Message[]>([]);
 
   const authState = useAuth();
   const toast = useToast();
@@ -88,7 +89,7 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
       status: 'success',
       position: 'bottom-right',
     });
-    getMessageList(userInfo!.uid);
+    refetch();
   };
 
   const handleContentsChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -123,43 +124,18 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
     setIsAnonymous(e.currentTarget.checked);
   };
 
-  // get single message
-  const getSingleMessage = async ({
-    uid,
-    messageId,
-  }: Omit<ReplyProps, 'reply'>) => {
-    try {
-      const res = await axios(
-        `/api/message-each?uid=${uid}&messageId=${messageId}`
-      );
-      if (res.status === 200) {
-        setMessageList((prev) =>
-          prev.map((item) => (item.id === messageId ? res.data : item))
-        );
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // get all messages list
-  const getMessageList = async (uid: string) => {
-    try {
-      const res = await fetch(`/api/message-list?uid=${uid}`);
-      const data = await res.json();
-      setMessageList(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => {
-    if (!userInfo) {
-      return;
-    }
-    getMessageList(userInfo.uid);
-  }, [userInfo]);
-
+  const {
+    data: messageList,
+    isError,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ['MessageList', userInfo?.uid],
+    queryFn: () => getAllMessages(userInfo!.uid),
+    enabled: !!userInfo?.uid,
+    refetchOnWindowFocus: false,
+    select: (res) => res.data,
+  });
   if (!userInfo) return <Text fontSize="md">사용자 정보가 없습니다.</Text>;
 
   return (
@@ -177,11 +153,39 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
           handleRegisterContents={handleRegisterContents}
           handleSwitchChange={handleSwitchChange}
         />
-        <Messages
-          messageList={messageList}
-          userInfo={userInfo}
-          onSubmitComplete={getSingleMessage}
-        />
+        {isLoading ? (
+          <Box my="4">
+            <Flex
+              bgColor="white"
+              rounded="md"
+              p="2"
+              my="2"
+              minH="200px"
+              justify="center"
+              alignItems="center"
+              fontWeight="bold"
+            >
+              로딩중입니다. 조금만 더 기다려봐요! 🤔
+            </Flex>
+          </Box>
+        ) : isError ? (
+          <Box my="4">
+            <Flex
+              bgColor="white"
+              rounded="md"
+              p="2"
+              my="2"
+              minH="200px"
+              justify="center"
+              alignItems="center"
+              fontWeight="bold"
+            >
+              에러가 발생했습니다.🥲
+            </Flex>
+          </Box>
+        ) : (
+          <Messages messageList={messageList} userInfo={userInfo} />
+        )}
       </Box>
     </Layout>
   );
