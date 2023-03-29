@@ -12,7 +12,7 @@ export interface MessageListProps {
 
 export interface Message extends MessageListProps {
   createdAt: string;
-  repliedAt?: string;
+  repliedAt?: string | null;
 }
 
 export interface MessageFromServer extends MessageListProps {

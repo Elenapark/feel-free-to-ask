@@ -45,7 +45,8 @@ async function addMessage({ uid, message, author }: AddMessageProps) {
       const newMessageRef = memberRef.collection(MESSAGE_COLLECTION).doc();
       let newMessageContents: NewMessageProps = {
         message,
-        createdAt: firestore.FieldValue.serverTimestamp(),
+        createdAt:
+          firestore.FieldValue.serverTimestamp() as firestore.Timestamp,
       };
       if (author) {
         newMessageContents = {
@@ -86,10 +87,10 @@ async function getMessages(uid: string): Promise<Message[]> {
         ...docData,
         message: isDenied ? '비공개 처리된 메세지입니다.' : docData.message,
         id: item.id,
-        createdAt: docData.createdAt.toDate().toISOString(),
+        createdAt: docData.createdAt?.toDate().toISOString(),
         repliedAt: docData.repliedAt
-          ? docData.repliedAt.toDate().toISOString()
-          : undefined,
+          ? docData.repliedAt?.toDate().toISOString()
+          : null,
       };
     });
   });
@@ -104,7 +105,7 @@ async function addReplyToMessage({ uid, messageId, reply }: ReplyProps) {
     .collection(MESSAGE_COLLECTION)
     .doc(messageId);
 
-  await FirestoreInstance.runTransaction(async (transaction) => {
+  const added = await FirestoreInstance.runTransaction(async (transaction) => {
     const memberDoc = await transaction.get(memberRef);
 
     if (!memberDoc.exists) {
@@ -135,7 +136,22 @@ async function addReplyToMessage({ uid, messageId, reply }: ReplyProps) {
       reply,
       repliedAt: firestore.FieldValue.serverTimestamp(),
     });
+
+    return {
+      ...messageData,
+      id: messageId,
+      message: messageData.isDenied
+        ? '비공개 처리된 메세지입니다.'
+        : messageData.message,
+      createdAt: messageData.createdAt?.toDate().toISOString(),
+      repliedAt: messageData.repliedAt
+        ? messageData.repliedAt?.toDate().toISOString()
+        : null,
+      reply,
+    };
   });
+
+  return added;
 }
 
 async function getEachMessage({
@@ -160,6 +176,7 @@ async function getEachMessage({
       }
 
       const messageDoc = await transaction.get(messageRef);
+
       if (!messageDoc.exists) {
         throw new CustomServerError({
           statusCode: 400,
@@ -169,16 +186,18 @@ async function getEachMessage({
 
       // extract data
       const messageData = messageDoc.data() as MessageFromServer;
+
       const isDenied =
         messageData.isDenied !== undefined && messageData.isDenied === true;
 
       return {
         ...messageData,
+        id: messageId,
         message: isDenied ? '비공개 처리된 메세지입니다.' : messageData.message,
-        createdAt: messageData.createdAt.toDate().toISOString(),
+        createdAt: messageData.createdAt?.toDate().toISOString(),
         repliedAt: messageData.repliedAt
-          ? messageData.repliedAt.toDate().toISOString()
-          : undefined,
+          ? messageData.repliedAt?.toDate().toISOString()
+          : null,
       };
     }
   );
@@ -225,6 +244,7 @@ async function updateMessage({
 
       // returns value
       const messageData = messageDoc.data() as MessageFromServer;
+
       return {
         ...messageData,
         createdAt: messageData.createdAt.toDate().toISOString(),

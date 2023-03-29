@@ -10,8 +10,8 @@ import Messages from '@/components/Messages';
 import UserProfile from '@/components/UserProfile';
 import MessageForm from '@/components/MessageForm';
 
-import { useQuery } from '@tanstack/react-query';
-import { getAllMessages } from '@/services/message-api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { addMessage, getAllMessages } from '@/services/message-api';
 import InfoMessage from '@/components/InfoMessage';
 interface Props {
   userInfo: AuthUserProps | null;
@@ -23,56 +23,24 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
 
   const authState = useAuth();
   const toast = useToast();
+  const queryClient = useQueryClient();
 
-  const fetchPostRequest = async ({
-    uid,
-    message,
-    author,
-  }: AddMessageProps) => {
-    if (message.length === 0) {
-      return {
-        result: false,
-        message: '입력값이 등록되지 않았습니다.',
-      };
-    }
-    try {
-      await axios({
-        method: 'POST',
-        url: '/api/message-add',
-        data: {
-          uid,
-          message,
-          author,
-        },
-      });
-      setContents('');
-      return {
-        result: true,
-        message: '입력값이 성공적으로 등록되었습니다.',
-      };
-    } catch (err) {
-      console.error(err);
-      return {
-        result: false,
-        message: '입력값 등록에 실패했습니다.',
-      };
-    }
-  };
-
-  const handleRegisterContents = async () => {
-    const author = isAnonymous
-      ? undefined
-      : {
-          displayName: authState?.authUser?.displayName ?? 'Anonymous',
-          photoURL:
-            authState?.authUser?.photoURL ?? 'https://bit.ly/broken-link',
-        };
-    const res = await fetchPostRequest({
-      uid: userInfo!.uid,
-      message: contents,
-      author,
-    });
-    if (!res?.result) {
+  const { mutate: addMutate } = useMutation({
+    mutationFn: ({ uid, message, author }: AddMessageProps) =>
+      addMessage({ uid, message, author }),
+    onSuccess: (res) => {
+      if (res.status === 201) {
+        toast({
+          title: '등록 성공',
+          isClosable: true,
+          duration: 7000,
+          status: 'success',
+          position: 'bottom-right',
+        });
+        queryClient.invalidateQueries(['MessageList', userInfo?.uid]);
+      }
+    },
+    onError: () => {
       toast({
         title: '등록 실패',
         description: '컨텐츠가 입력되지 않았거나, 에러가 발생했습니다.',
@@ -81,16 +49,22 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
         duration: 7000,
         position: 'bottom-right',
       });
-      return;
-    }
-    toast({
-      title: '등록 성공',
-      isClosable: true,
-      duration: 7000,
-      status: 'success',
-      position: 'bottom-right',
+    },
+  });
+
+  const handleRegisterContents = () => {
+    const author = isAnonymous
+      ? undefined
+      : {
+          displayName: authState?.authUser?.displayName ?? 'Anonymous',
+          photoURL:
+            authState?.authUser?.photoURL ?? 'https://bit.ly/broken-link',
+        };
+    addMutate({
+      uid: userInfo!.uid,
+      message: contents,
+      author,
     });
-    refetch();
   };
 
   const handleContentsChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -129,7 +103,6 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
     data: messageList,
     isError,
     isLoading,
-    refetch,
   } = useQuery({
     queryKey: ['MessageList', userInfo?.uid],
     queryFn: () => getAllMessages(userInfo!.uid),

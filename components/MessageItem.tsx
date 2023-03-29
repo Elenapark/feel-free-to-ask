@@ -24,7 +24,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ReplyProps } from '@/models/message/message.model';
 import {
   addReplyToMessage,
-  getSingleMessage,
   MessageProps,
   updateMessage,
 } from '@/services/message-api';
@@ -48,8 +47,8 @@ export default function MessageItem({
   const { mutate: addReplyMutate } = useMutation({
     mutationFn: ({ uid, reply, messageId }: ReplyProps) =>
       addReplyToMessage({ uid, reply, messageId }),
-    onSuccess: async (res, variables) => {
-      if (res.status === 201) {
+    onSuccess: (data) => {
+      if (data.status === 200) {
         toast({
           title: '등록 성공',
           isClosable: true,
@@ -57,19 +56,11 @@ export default function MessageItem({
           status: 'success',
           position: 'bottom-right',
         });
-
-        const singleMessage = await getSingleMessage({
-          uid: userInfo.uid,
-          messageId: item.id,
-        });
-        if (singleMessage.data) {
-          console.log(singleMessage.data);
-          queryClient.setQueryData(
-            ['MessageList', userInfo?.uid, { id: variables.messageId }],
-            singleMessage.data
-          );
-          queryClient.invalidateQueries(['MessageList', userInfo?.uid]);
-        }
+        queryClient.setQueryData(
+          ['MessageList', userInfo?.uid, item.id],
+          data.data
+        );
+        queryClient.invalidateQueries(['MessageList', userInfo?.uid]);
       }
     },
     onError: () => {
@@ -178,7 +169,7 @@ export default function MessageItem({
                   <Text fontSize="xs" mr="1">
                     {userInfo?.displayName ?? ''}
                   </Text>
-                  <Text fontSize="xs" color="gray" whiteSpace="pre-line">
+                  <Text fontSize="xx-small" color="gray" whiteSpace="pre-line">
                     {formatAgo(repliedAt!, 'ko')}
                   </Text>
                 </Flex>

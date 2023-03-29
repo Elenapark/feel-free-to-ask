@@ -56,8 +56,8 @@ async function reply(req: NextApiRequest, res: NextApiResponse) {
     throw new BadRequestError('reply가 누락되었습니다.');
   }
 
-  await MessageModel.addReplyToMessage({ uid, messageId, reply });
-  return res.status(201).end();
+  const added = await MessageModel.addReplyToMessage({ uid, messageId, reply });
+  return res.status(200).json(added);
 }
 
 async function getEachMessage(req: NextApiRequest, res: NextApiResponse) {
