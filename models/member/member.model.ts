@@ -81,9 +81,7 @@ async function add({
   }
 }
 
-async function getInfoByScreenName(
-  screenName: string
-): Promise<AuthUserProps> | null {
+async function getInfoByScreenName(screenName: string) {
   const memberRef = FirebaseAdmin.getInstance()
     .Firestore.collection(SCREEN_NAME_COLLECTION)
     .doc(screenName);
