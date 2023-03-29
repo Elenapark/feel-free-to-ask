@@ -1,3 +1,4 @@
+import { AddMessageProps } from '@/models/message/message.model';
 import FirebaseClient from '@/models/firebase_client';
 import { Message } from '@/models/types/message_contents';
 import axios, { AxiosResponse } from 'axios';
@@ -8,6 +9,18 @@ export interface MessageProps {
   uid: string;
   messageId: string;
 }
+
+export const addMessage = async ({ uid, message, author }: AddMessageProps) => {
+  return await axios({
+    method: 'POST',
+    url: '/api/message-add',
+    data: {
+      uid,
+      message,
+      author,
+    },
+  });
+};
 
 export const getSingleMessage = async ({
   uid,

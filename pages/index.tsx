@@ -2,10 +2,10 @@ import { Layout } from '@/components/Layout';
 import Image from 'next/image';
 import { Box, Heading, Flex, Center } from '@chakra-ui/react';
 import CustomButton from '@/components/ui/CustomButton';
-import { useAuth } from '@/contexts/auth_user.context';
+import { AuthContextProps, useAuth } from '@/contexts/auth_user.context';
 
 export default function Home() {
-  const { authUser, signInWithGoogle } = useAuth();
+  const { authUser, signInWithGoogle } = useAuth() as AuthContextProps;
 
   return (
     <Layout minH="100vh">
@@ -20,7 +20,7 @@ export default function Home() {
           />
 
           <Heading as="h2" size="md" my={2}>
-            Write down your favorite sentences
+            무엇이든 물어보세요 🌟
           </Heading>
           {!authUser && (
             <Center w="300px" my="20px">
