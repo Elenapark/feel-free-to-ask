@@ -39,6 +39,7 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
         });
         queryClient.invalidateQueries(['MessageList', userInfo?.uid]);
       }
+      setContents('');
     },
     onError: () => {
       toast({
@@ -68,9 +69,8 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
   };
 
   const handleContentsChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    if (e.currentTarget.value) {
-      const lineCount =
-        e.currentTarget.value.match(/[^\n]*\n[^\n]*/gi)?.length ?? 1;
+    if (e.target.value) {
+      const lineCount = e.target.value.match(/[^\n]*\n[^\n]*/gi)?.length ?? 1;
       if (lineCount >= 7) {
         toast({
           title: '최대 7줄까지만 입력 가능합니다.',
@@ -81,7 +81,7 @@ const UserHomePage: NextPage<Props> = ({ userInfo }) => {
         });
         return;
       }
-      setContents(e.currentTarget.value);
+      setContents(e.target.value);
     }
   };
 
