@@ -38,7 +38,7 @@ export default function GlobalNavBar() {
           />
         </Box>
         <Box>
-          {authUser && (
+          {authUser ? (
             <Menu>
               <MenuButton
                 backgroundColor="transparent"
@@ -61,10 +61,9 @@ export default function GlobalNavBar() {
                 <MenuItem onClick={signOutWithGoogle}>로그아웃</MenuItem>
               </MenuList>
             </Menu>
-          )}
-          {!authUser && (
+          ) : (
             <CustomButton
-              title={authUser ? 'Logout' : 'Login'}
+              title="Login"
               w="auto"
               size="sm"
               bgColor="#4285f4"
@@ -78,7 +77,7 @@ export default function GlobalNavBar() {
                   height={15}
                 />
               }
-              onClick={authUser ? signOutWithGoogle : signInWithGoogle}
+              onClick={signInWithGoogle}
             />
           )}
         </Box>
