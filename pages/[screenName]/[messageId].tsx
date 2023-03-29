@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { GetServerSideProps, GetServerSidePropsResult, NextPage } from 'next';
 import { Layout } from '@/components/Layout';
 import { AuthUserProps } from '@/models/types/auth_user';
-import { Box, List, Text } from '@chakra-ui/react';
+import { Box, Button, List, Text } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/auth_user.context';
 import UserProfile from '@/components/UserProfile';
 import MessageItem from '@/components/MessageItem';
@@ -12,6 +12,8 @@ import MessageModel from '@/models/message/message.model';
 import { getSingleMessage } from '@/services/message-api';
 import { useQuery } from '@tanstack/react-query';
 import InfoMessage from '@/components/InfoMessage';
+import Link from 'next/link';
+import { BsChevronLeft } from 'react-icons/bs';
 
 interface Props {
   userInfo: AuthUserProps | null;
@@ -51,6 +53,16 @@ const MessageDetail: NextPage<Props> = ({
       backgroundColor="gray.100"
     >
       <Box maxW="md" mx="auto" py="6" px="2">
+        <Link href={`/${userInfo?.email?.split('@')[0]}`}>
+          <Button
+            leftIcon={<BsChevronLeft size="12" />}
+            backgroundColor="gray.200"
+            mb="2"
+            fontSize="small"
+          >
+            {userInfo.email?.split('@')[0]}의 홈으로 이동
+          </Button>
+        </Link>
         <UserProfile userInfo={userInfo} />
         {isLoading ? (
           <InfoMessage>

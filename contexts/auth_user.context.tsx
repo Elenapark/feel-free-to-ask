@@ -9,17 +9,20 @@ export interface AuthContextProps {
   loading: boolean;
 }
 
-const AuthUserContext = createContext<AuthContextProps | null>(null);
+export const AuthUserContext = createContext<AuthContextProps | null>(null);
 
 export default function AuthContextProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const authState = useFirebaseAuth();
+  const { authUser, signInWithGoogle, signOutWithGoogle, loading } =
+    useFirebaseAuth();
 
   return (
-    <AuthUserContext.Provider value={authState}>
+    <AuthUserContext.Provider
+      value={{ authUser, signInWithGoogle, signOutWithGoogle, loading }}
+    >
       {children}
     </AuthUserContext.Provider>
   );

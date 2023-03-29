@@ -27,6 +27,7 @@ import {
   MessageProps,
   updateMessage,
 } from '@/services/message-api';
+import { useRouter } from 'next/router';
 
 interface MessageItemProps {
   item: Message;
@@ -39,6 +40,7 @@ export default function MessageItem({
   isOwner,
   userInfo,
 }: MessageItemProps) {
+  const router = useRouter();
   const toast = useToast();
   const [newReply, setNewReply] = useState<string>('');
   const { author, createdAt, id, message, repliedAt, reply } = item;
@@ -144,6 +146,13 @@ export default function MessageItem({
                 }
               >
                 {isDeniedTitle ? '비공개 처리 해제' : '비공개 처리'}
+              </MenuItem>
+              <MenuItem
+                onClick={() =>
+                  router.push(`/${userInfo.email?.split('@')[0]}/${item.id}`)
+                }
+              >
+                메세지 상세 보기
               </MenuItem>
             </MenuList>
           </Menu>
