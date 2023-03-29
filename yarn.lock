@@ -7635,15 +7635,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json@npm:11.0.0":
-  version: 11.0.0
-  resolution: "json@npm:11.0.0"
-  bin:
-    json: lib/json.js
-  checksum: 0beb8689722fc30251638543caf791bedc1a25199c18eb0281de115a0dadb00a07d4d36cbd7ff7680e04157fcb2bba76f29ed940b1e4e92f60c6fbaa74523fce
-  languageName: node
-  linkType: hard
-
 "jsonwebtoken@npm:^9.0.0":
   version: 9.0.0
   resolution: "jsonwebtoken@npm:9.0.0"
@@ -8088,7 +8079,6 @@ __metadata:
     framer-motion: ^10.3.1
     jest: ^29.5.0
     jest-environment-jsdom: ^29.5.0
-    json: "npm:11.0.0"
     next: 13.2.4
     prettier: ^2.8.4
     react: 18.2.0

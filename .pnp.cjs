@@ -49,7 +49,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["framer-motion", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:10.3.1"],\
             ["jest", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:29.5.0"],\
             ["jest-environment-jsdom", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:29.5.0"],\
-            ["json", "npm:11.0.0"],\
             ["next", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:13.2.4"],\
             ["prettier", "npm:2.8.4"],\
             ["react", "npm:18.2.0"],\
@@ -10676,15 +10675,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
-      ["json", [\
-        ["npm:11.0.0", {\
-          "packageLocation": "./.yarn/cache/json-npm-11.0.0-8281048862-0beb868972.zip/node_modules/json/",\
-          "packageDependencies": [\
-            ["json", "npm:11.0.0"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
       ["json-bigint", [\
         ["npm:1.0.0", {\
           "packageLocation": "./.yarn/cache/json-bigint-npm-1.0.0-8e35bcb143-c67bb93ccb.zip/node_modules/json-bigint/",\
@@ -11247,7 +11237,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["framer-motion", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:10.3.1"],\
             ["jest", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:29.5.0"],\
             ["jest-environment-jsdom", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:29.5.0"],\
-            ["json", "npm:11.0.0"],\
             ["next", "virtual:7f019914909c37af8ecbf6e502a7111c7088892521bbc7d8c21a32ab518fcb13bed97bfad9dd90c3a87186b72db4ccfc7372a020b620a8004b7fbe7c61f29756#npm:13.2.4"],\
             ["prettier", "npm:2.8.4"],\
             ["react", "npm:18.2.0"],\
